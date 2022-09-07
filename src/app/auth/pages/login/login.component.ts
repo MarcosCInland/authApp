@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,13 +16,26 @@ export class LoginComponent implements OnInit {
     password: [ '123456', [ Validators.required, Validators.minLength(6)] ]
   })
 
-  constructor(private fb: FormBuilder, private router: Router) { }
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
   }
 
   login() {
-    this.router.navigateByUrl('/dashboard');
+    //  request
+    this.authService.login(this.miFormulario.controls?.email.value, this.miFormulario.controls?.password.value)
+    .subscribe(ok =>{
+        if (ok) {
+          this.router.navigateByUrl('/dashboard');;
+        } else {
+          //TODO: Mostrar mensaje de error
+        }
+      }
+      ,err => {
+      }
+    );
+
+    
   }
 
 }
