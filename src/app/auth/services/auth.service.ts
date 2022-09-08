@@ -19,9 +19,28 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  registro(name: string, email: string, password: string) {
+    const url = `${this.baseUrl}/auth/new`;
+    const body = { name, email, password };
+    return this.http.post<AuthResponse>(url, body)
+    .pipe(
+      tap( resp => {
+        if (resp) {
+          localStorage.setItem('token', resp.token!);
+          this._usuario = {
+            name: resp.name!,
+            uid: resp.uid!,
+          }
+        }
+      } ),
+      map( resp => resp.ok ),
+      catchError( err => of(err.error) )
+    );
+  }
+  
   login(email: string, password: string) {
     const url = `${this.baseUrl}/auth`;
-    const body = { email, password }
+    const body = { email, password };
     
     return this.http.post<AuthResponse>(url, body)
     .pipe(
@@ -36,7 +55,7 @@ export class AuthService {
       } ),
       map( resp => resp.ok ),
       catchError( err => of(err.error) )
-    )
+    );
   }
 
   validarToken(): Observable<boolean> {
@@ -55,5 +74,9 @@ export class AuthService {
       }),
       catchError(err => of(false))
     );
+  }
+
+  logout() {
+    localStorage.removeItem('token');
   }
 }
